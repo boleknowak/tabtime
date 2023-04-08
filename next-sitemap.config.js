@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 
-const APP_URL = process.env.APP_URL || 'https://localhost:3000';
+const APP_URL = process.env.APP_URL || 'https://tabtime.app';
 
 module.exports = {
   siteUrl: APP_URL,

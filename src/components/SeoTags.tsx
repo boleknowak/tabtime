@@ -16,9 +16,9 @@ export default function SeoTags({ ...props }: SeoTagsProps) {
   const defaultTitle = 'TabTime';
   const defaultDescription = 'TabTime is a simple and easy to use time tracking app.';
   const defaultKeywords = 'time tracking, time tracker, time tracking app, time tracker app';
-  const defaultUrl = 'http://localhost:3000';
+  const defaultUrl = 'https://tabtime.app';
   const defaultType = 'website';
-  const defaultImage = 'https://localhost:3000/images/brand/logo.png';
+  const defaultImage = 'https://timetab.app/images/brand/logo.png';
 
   const title = props.title ?? defaultTitle;
   const ogTitle = props.og_title ?? props.title ?? defaultTitle;

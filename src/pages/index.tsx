@@ -3,6 +3,7 @@ import Layout from '@/components/Layouts/Layout';
 import SeoTags from '@/components/SeoTags';
 import * as gtag from '@/lib/gtag';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { signIn } from 'next-auth/react';
 
 export default function Home({ siteMeta }) {
   const [useGoogleAnalytics /* , setUseGoogleAnalytics */] = useLocalStorage(
@@ -31,6 +32,7 @@ export default function Home({ siteMeta }) {
       <SeoTags title={siteMeta.title} description={siteMeta.description} />
       <Layout>
         <div className="m-4 font-bold">Hello World!</div>
+        <button onClick={() => signIn('google')}>Google</button>
       </Layout>
     </>
   );

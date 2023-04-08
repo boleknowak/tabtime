@@ -27,6 +27,7 @@ export const authOptions: NextAuthOptions = {
         name: user.name,
         email: user.email,
         image: user.image,
+        maxTokens: user.maxTokens,
       } as UserInterface;
 
       return session;
