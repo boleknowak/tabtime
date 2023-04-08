@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { SessionProvider } from 'next-auth/react';
 import { Toaster } from 'react-hot-toast';
+import { ChakraProvider } from '@chakra-ui/react';
+import { theme } from '@/styles/theme';
 
 const TopProgressBar = dynamic(() => import('@/components/TopProgressBar'), { ssr: false });
 
@@ -46,10 +48,12 @@ export default function App({ Component, pageProps: { session, ...pageProps } })
       />
       <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
       <TopProgressBar />
-      <SessionProvider session={session}>
-        <Component {...pageProps} />
-        <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
-      </SessionProvider>
+      <ChakraProvider theme={theme}>
+        <SessionProvider session={session}>
+          <Component {...pageProps} />
+          <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
+        </SessionProvider>
+      </ChakraProvider>
     </>
   );
 }

@@ -3,6 +3,7 @@ import SeoTags from '@/components/SeoTags';
 import { UserInterface } from '@/interfaces/UserInterface';
 import { copyToClipboard } from '@/lib/copyToClipboard';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
+import { Button, Tooltip } from '@chakra-ui/react';
 import { getServerSession } from 'next-auth/next';
 import { useEffect, useState } from 'react';
 
@@ -70,21 +71,29 @@ export default function Tokens({ siteMeta, authedUser }: Props) {
               <div className="font-bold">Your tokens, {authedUser.name}</div>
               <div>
                 <div className="space-x-2">
-                  <button
-                    type="button"
-                    className="rounded bg-blue-500 px-2 text-white"
+                  <Button
                     onClick={getTokens}
+                    colorScheme="blue"
+                    isLoading={isLoading}
+                    loadingText="Refresh"
                   >
                     Refresh
-                  </button>
-                  <button
-                    type="button"
-                    className="rounded bg-blue-500 px-2 text-white"
-                    disabled={authedUser.maxTokens <= tokens.length}
-                    onClick={() => setShowCreateTokenForm(!showCreateTokenForm)}
+                  </Button>
+                  <Tooltip
+                    hasArrow
+                    placement="top"
+                    isDisabled={authedUser.maxTokens > tokens.length}
+                    label="You have reached your maximum number of tokens."
+                    aria-label="A tooltip"
                   >
-                    Create token
-                  </button>
+                    <Button
+                      isDisabled={authedUser.maxTokens <= tokens.length}
+                      onClick={() => setShowCreateTokenForm(!showCreateTokenForm)}
+                      colorScheme="blue"
+                    >
+                      Create token
+                    </Button>
+                  </Tooltip>
                 </div>
               </div>
             </div>

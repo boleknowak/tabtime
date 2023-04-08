@@ -1,9 +1,12 @@
+import { Button, useColorMode } from '@chakra-ui/react';
 import { Caveat } from 'next/font/google';
 import Link from 'next/link';
 
 const caveat = Caveat({ subsets: ['latin'] });
 
 export default function Layout({ children }) {
+  const { colorMode, toggleColorMode } = useColorMode();
+
   return (
     <div>
       <header>
@@ -13,6 +16,9 @@ export default function Layout({ children }) {
               <span className={caveat.className}>TabTime</span>
             </div>
           </Link>
+          <Button onClick={toggleColorMode}>
+            Toggle {colorMode === 'light' ? 'Dark' : 'Light'}
+          </Button>
         </div>
       </header>
       <main>{children}</main>
