@@ -1,9 +1,10 @@
-import { UserInterface } from '@/interfaces/UserInterface';
-import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/pages/api/auth/[...nextauth]';
-import { prisma } from '@/lib/db';
 import { v4 as uuidv4 } from 'uuid';
+import { UserInterface } from '@/interfaces/UserInterface';
+import { prisma } from '@/lib/db';
+import { authOptions } from '@/pages/api/auth/[...nextauth]';
+
+import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handle(request: NextApiRequest, response: NextApiResponse) {
   const session = await getServerSession(request, response, authOptions);
@@ -22,7 +23,10 @@ export default async function handle(request: NextApiRequest, response: NextApiR
 
   if (request.method === 'POST') {
     if (tokens.length >= user.maxTokens) {
-      return response.status(403).json({ error: 'You have reached your token limit.' });
+      return response.status(403).json({
+        success: false,
+        message: 'You have reached your token limit.',
+      });
     }
 
     const { name } = request.body;
@@ -39,6 +43,30 @@ export default async function handle(request: NextApiRequest, response: NextApiR
       success: true,
       message: 'Token created successfully.',
       token,
+    });
+  }
+
+  if (request.method === 'DELETE') {
+    const { token } = request.body;
+
+    const tokenExists = tokens.find((t) => t.token === token.token);
+
+    if (!tokenExists) {
+      return response.status(404).json({
+        success: false,
+        message: 'Token not found.',
+      });
+    }
+
+    await prisma.token.delete({
+      where: {
+        token: token.token,
+      },
+    });
+
+    return response.status(200).json({
+      success: true,
+      message: 'Token deleted successfully.',
     });
   }
 

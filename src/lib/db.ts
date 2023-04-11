@@ -13,6 +13,8 @@ export const prisma =
     ],
   } */);
 
+// prisma.$connect(); // this line disables the lazy loading
+
 // prisma.$on('query', async (e) => {
 //   console.log(`${e.query} ${e.params}`);
 // });

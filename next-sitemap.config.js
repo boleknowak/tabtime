@@ -9,7 +9,15 @@ module.exports = {
   changefreq: 'daily',
   priority: 0.7,
   autoLastmod: true,
-  exclude: ['/404', '/404.html', '/_error', '/_error.html', '/posts-sitemap.xml'],
+  exclude: [
+    '/404',
+    '/404.html',
+    '/_error',
+    '/_error.html',
+    '/posts-sitemap.xml',
+    '/dashboard',
+    '/dashboard/*',
+  ],
   robotsTxtOptions: {
     // additionalSitemaps: [`${APP_URL}/posts-sitemap.xml`],
     policies: [
