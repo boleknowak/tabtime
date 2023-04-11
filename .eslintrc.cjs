@@ -12,6 +12,7 @@ module.exports = {
     '@typescript-eslint',
     '@typescript-eslint/eslint-plugin',
     'import-no-duplicates-prefix-resolved-path',
+    'chakra-ui',
   ],
   overrides: [
     {
@@ -62,5 +63,8 @@ module.exports = {
         prefixResolvedPathWithImportName: true,
       },
     ],
+    'chakra-ui/props-order': 'error',
+    'chakra-ui/props-shorthand': 'error',
+    'chakra-ui/require-specific-component': 'error',
   },
 };
