@@ -7,23 +7,14 @@ import SeoTags from '@/components/SeoTags';
 import { UserInterface } from '@/interfaces/UserInterface';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
   Box,
   Button,
-  Divider,
   Flex,
   Grid,
   GridItem,
   Heading,
   HStack,
   IconButton,
-  ListItem,
-  OrderedList,
   Spinner,
   Text,
   Tooltip,
@@ -37,6 +28,7 @@ import { CreateKeyModal } from '@/components/Keys/CreateKeyModal';
 import { ManageKeyModal } from '@/components/Keys/ManageKeyModal';
 import { DeleteKeyDialog } from '@/components/Keys/DeleteKeyDialog';
 import { RefreshKeyDialog } from '@/components/Keys/RefreshKeyDialog';
+import { AboutKeyDialog } from '@/components/Keys/AboutKeyDialog';
 
 type Props = {
   siteMeta: {
@@ -71,10 +63,14 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
     onOpen: openManageKeyModal,
     onClose: closeManageKeyModalEvent,
   } = useDisclosure();
-  const { isOpen: isOpenInfo, onOpen: onOpenInfo, onClose: onCloseInfo } = useDisclosure();
+  const {
+    isOpen: isAboutKeyDialogOpened,
+    onOpen: openAboutKeyDialog,
+    onClose: closeAboutKeyDialogEvent,
+  } = useDisclosure();
   const cancelDeleteRef = useRef();
   const cancelRefreshRef = useRef();
-  const cancelInfoRef = useRef();
+  const cancelAboutRef = useRef();
 
   const getTokens = async () => {
     setIsLoading(true);
@@ -122,7 +118,11 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
             </Box>
             <Box ml={4}>
               <HStack spacing={2}>
-                <IconButton aria-label="Info" icon={<AiOutlineInfoCircle />} onClick={onOpenInfo} />
+                <IconButton
+                  aria-label="Info"
+                  icon={<AiOutlineInfoCircle />}
+                  onClick={openAboutKeyDialog}
+                />
                 <IconButton
                   aria-label="Refresh"
                   icon={<IoMdRefresh />}
@@ -210,43 +210,11 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
                 getTokens={getTokens}
                 closeManageKeyModal={closeManageKeyModalEvent}
               />
-              <AlertDialog
-                isOpen={isOpenInfo}
-                leastDestructiveRef={cancelInfoRef}
-                onClose={onCloseInfo}
-              >
-                <AlertDialogOverlay>
-                  <AlertDialogContent>
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                      About access keys
-                    </AlertDialogHeader>
-                    <Divider mb={3} />
-                    <AlertDialogBody>
-                      <Text mb={2} fontWeight="medium">
-                        Here are a few important facts about access keys:
-                      </Text>
-                      <OrderedList>
-                        <ListItem>
-                          Access keys are used to identify your browser extension.
-                        </ListItem>
-                        <ListItem>
-                          You can use the access keys you've generated in multiple browsers.
-                        </ListItem>
-                        <ListItem>
-                          You can filter your time entries by access key and operating system.
-                        </ListItem>
-                        <ListItem>For now, Access keys are only used for time tracking.</ListItem>
-                        <ListItem>In the future we will add more features to access keys.</ListItem>
-                      </OrderedList>
-                    </AlertDialogBody>
-                    <AlertDialogFooter>
-                      <Button ref={cancelInfoRef} onClick={onCloseInfo}>
-                        OK
-                      </Button>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialogOverlay>
-              </AlertDialog>
+              <AboutKeyDialog
+                isOpen={isAboutKeyDialogOpened}
+                onClose={closeAboutKeyDialogEvent}
+                cancelRef={cancelAboutRef}
+              />
             </Box>
           )}
         </Box>
