@@ -29,20 +29,55 @@ export default async function handle(request: NextApiRequest, response: NextApiR
       });
     }
 
-    const { name } = request.body;
+    const { action } = request.body;
 
-    const token = await prisma.token.create({
-      data: {
-        name: name || null,
-        token: uuidv4(),
-        userId: user.id,
-      },
-    });
+    if (action === 'create') {
+      const { name } = request.body;
+      const token = await prisma.token.create({
+        data: {
+          name: name || null,
+          token: uuidv4(),
+          userId: user.id,
+        },
+      });
 
-    return response.status(200).json({
-      success: true,
-      message: 'Access key successfully created!',
-      token,
+      return response.status(200).json({
+        success: true,
+        message: 'Access key successfully created!',
+        token,
+      });
+    }
+
+    if (action === 'regenerate') {
+      const { token } = request.body;
+
+      const tokenExists = tokens.find((t) => t.token === token.token);
+
+      if (!tokenExists) {
+        return response.status(404).json({
+          success: false,
+          message: 'Access key not found.',
+        });
+      }
+
+      await prisma.token.update({
+        where: {
+          token: token.token,
+        },
+        data: {
+          token: uuidv4(),
+        },
+      });
+
+      return response.status(200).json({
+        success: true,
+        message: 'Access key successfully regenerated!',
+      });
+    }
+
+    return response.status(400).json({
+      success: false,
+      message: 'Invalid action.',
     });
   }
 

@@ -71,9 +71,15 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingToken, setIsCreatingToken] = useState(false);
   const [isDeletingToken, setIsDeletingToken] = useState(false);
+  const [isRegeneratingToken, setIsRegeneratingToken] = useState(false);
   const [selectedToken, setSelectedToken] = useState({} as SelectedToken);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
+  const {
+    isOpen: isOpenRegenerate,
+    onOpen: onOpenRegenerate,
+    onClose: onCloseRegenerate,
+  } = useDisclosure();
   const { isOpen: isOpenManage, onOpen: onOpenManage, onClose: onCloseManage } = useDisclosure();
   const { isOpen: isOpenInfo, onOpen: onOpenInfo, onClose: onCloseInfo } = useDisclosure();
   const cancelRef = useRef();
@@ -108,6 +114,7 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
       },
       body: JSON.stringify({
         name: tokenName,
+        action: 'create',
       }),
     });
 
@@ -124,7 +131,61 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
         position: 'top',
         isClosable: true,
       });
+    } else {
+      setIsCreatingToken(false);
+      toast({
+        title: data.message,
+        status: 'error',
+        duration: 3500,
+        position: 'top',
+        isClosable: true,
+      });
     }
+  };
+
+  const regenerateToken = async (token) => {
+    setIsRegeneratingToken(true);
+
+    const response = await fetch('/api/tokens', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        token,
+        action: 'regenerate',
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      onCloseRegenerate();
+      onCloseManage();
+      getTokens();
+      setIsRegeneratingToken(false);
+      toast({
+        title: data.message,
+        status: 'success',
+        duration: 3500,
+        position: 'top',
+        isClosable: true,
+      });
+    } else {
+      setIsRegeneratingToken(false);
+      toast({
+        title: data.message,
+        status: 'error',
+        duration: 3500,
+        position: 'top',
+        isClosable: true,
+      });
+    }
+  };
+
+  const regenerateTokenModal = (token) => {
+    onOpenRegenerate();
+    setSelectedToken(token);
   };
 
   const deleteTokenModal = (token) => {
@@ -356,9 +417,10 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
                       </Button>
                       <Button
                         colorScheme="blue"
-                        isLoading={isCreatingToken}
+                        isLoading={isRegeneratingToken}
                         leftIcon={<HiRefresh />}
-                        loadingText="Regenerating key"
+                        loadingText="Regenerate key"
+                        onClick={() => regenerateTokenModal(selectedToken)}
                       >
                         Regenerate key
                       </Button>
@@ -390,6 +452,36 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
                         onClick={() => deleteToken(selectedToken)}
                       >
                         Yes, delete
+                      </Button>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialogOverlay>
+              </AlertDialog>
+              <AlertDialog
+                isOpen={isOpenRegenerate}
+                leastDestructiveRef={cancelRef}
+                onClose={onCloseRegenerate}
+              >
+                <AlertDialogOverlay>
+                  <AlertDialogContent>
+                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                      Regenerate key "{selectedToken.name || 'Untitled'}"
+                    </AlertDialogHeader>
+                    <AlertDialogBody>
+                      Are you sure? You can't undo this action afterwards. You will need to update
+                      the key in your browser extension.
+                    </AlertDialogBody>
+                    <AlertDialogFooter>
+                      <Button ref={cancelRef} onClick={onCloseRegenerate}>
+                        Cancel
+                      </Button>
+                      <Button
+                        ml={3}
+                        colorScheme="blue"
+                        isLoading={isRegeneratingToken}
+                        onClick={() => regenerateToken(selectedToken)}
+                      >
+                        Yes, regenerate
                       </Button>
                     </AlertDialogFooter>
                   </AlertDialogContent>
