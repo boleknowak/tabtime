@@ -143,7 +143,7 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
     }
   };
 
-  const regenerateToken = async (token) => {
+  const regenerateToken = async (token: SelectedToken) => {
     setIsRegeneratingToken(true);
 
     const response = await fetch('/api/tokens', {
@@ -183,22 +183,22 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
     }
   };
 
-  const regenerateTokenModal = (token) => {
+  const regenerateTokenModal = (token: SelectedToken) => {
     onOpenRegenerate();
     setSelectedToken(token);
   };
 
-  const deleteTokenModal = (token) => {
+  const deleteTokenModal = (token: SelectedToken) => {
     onOpenDelete();
     setSelectedToken(token);
   };
 
-  const manageTokenModal = (token) => {
+  const manageTokenModal = (token: SelectedToken) => {
     onOpenManage();
     setSelectedToken(token);
   };
 
-  const deleteToken = async (token) => {
+  const deleteToken = async (token: SelectedToken) => {
     setIsDeletingToken(true);
     try {
       const response = await fetch('/api/tokens', {
