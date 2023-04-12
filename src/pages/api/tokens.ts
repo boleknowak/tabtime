@@ -25,7 +25,7 @@ export default async function handle(request: NextApiRequest, response: NextApiR
     if (tokens.length >= user.maxTokens) {
       return response.status(403).json({
         success: false,
-        message: 'You have reached your token limit.',
+        message: 'You have reached your access key limit.',
       });
     }
 
@@ -41,7 +41,7 @@ export default async function handle(request: NextApiRequest, response: NextApiR
 
     return response.status(200).json({
       success: true,
-      message: 'Token created successfully.',
+      message: 'Access key successfully created!',
       token,
     });
   }
@@ -54,7 +54,7 @@ export default async function handle(request: NextApiRequest, response: NextApiR
     if (!tokenExists) {
       return response.status(404).json({
         success: false,
-        message: 'Token not found.',
+        message: 'Access key not found.',
       });
     }
 
@@ -66,7 +66,7 @@ export default async function handle(request: NextApiRequest, response: NextApiR
 
     return response.status(200).json({
       success: true,
-      message: 'Token deleted successfully.',
+      message: 'Access key deleted successfully.',
     });
   }
 

@@ -6,8 +6,10 @@ import {
   FiCompass,
   FiHome,
   FiMenu,
+  FiMoon,
   FiSettings,
   FiStar,
+  FiSun,
   FiTrendingUp,
 } from 'react-icons/fi';
 
@@ -31,6 +33,7 @@ import {
   MenuItem,
   MenuList,
   Text,
+  useColorMode,
   useColorModeValue,
   useDisclosure,
   VStack,
@@ -116,9 +119,11 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => (
 
 interface MobileProps extends FlexProps {
   onOpen: () => void;
+  toggleColorMode: () => void;
+  colorMode: string;
   authedUser: UserInterface;
 }
-const MobileNav = ({ onOpen, authedUser, ...rest }: MobileProps) => (
+const MobileNav = ({ onOpen, authedUser, toggleColorMode, colorMode, ...rest }: MobileProps) => (
   <Flex
     align="center"
     justify={{ base: 'space-between', md: 'flex-end' }}
@@ -147,7 +152,14 @@ const MobileNav = ({ onOpen, authedUser, ...rest }: MobileProps) => (
       Logo
     </Text>
 
-    <HStack spacing={{ base: '0', md: '4' }}>
+    <HStack spacing={{ base: '0', md: '2' }}>
+      <IconButton
+        aria-label="toggle theme"
+        icon={colorMode === 'light' ? <FiMoon /> : <FiSun />}
+        onClick={toggleColorMode}
+        size="lg"
+        variant="ghost"
+      />
       <IconButton aria-label="open menu" icon={<FiBell />} size="lg" variant="ghost" />
       <Flex align={'center'}>
         <Menu>
@@ -156,9 +168,9 @@ const MobileNav = ({ onOpen, authedUser, ...rest }: MobileProps) => (
               <MenuButton
                 p={2}
                 _hover={{
-                  bgColor: 'gray.100',
+                  bgColor: useColorModeValue('gray.100', 'gray.700'),
                 }}
-                _focus={{ boxShadow: 'none', bgColor: 'gray.200' }}
+                _focus={{ boxShadow: 'none', bgColor: useColorModeValue('gray.200', 'gray.600') }}
                 transition="all 0.1s"
                 rounded="md"
               >
@@ -183,11 +195,34 @@ const MobileNav = ({ onOpen, authedUser, ...rest }: MobileProps) => (
                 bg={useColorModeValue('white', 'gray.900')}
                 borderColor={useColorModeValue('gray.200', 'gray.700')}
               >
-                <MenuItem rounded="md">Profile</MenuItem>
-                <MenuItem rounded="md">Settings</MenuItem>
-                <MenuItem rounded="md">Billing</MenuItem>
+                <MenuItem
+                  bg={useColorModeValue('white', 'gray.900')}
+                  _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
+                  rounded="md"
+                >
+                  Profile
+                </MenuItem>
+                <MenuItem
+                  bg={useColorModeValue('white', 'gray.900')}
+                  _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
+                  rounded="md"
+                >
+                  Settings
+                </MenuItem>
+                <MenuItem
+                  bg={useColorModeValue('white', 'gray.900')}
+                  _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
+                  rounded="md"
+                >
+                  Billing
+                </MenuItem>
                 <MenuDivider />
-                <MenuItem onClick={() => signOut()} rounded="md">
+                <MenuItem
+                  bg={useColorModeValue('white', 'gray.900')}
+                  _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
+                  onClick={() => signOut()}
+                  rounded="md"
+                >
                   Sign out
                 </MenuItem>
               </MenuList>
@@ -201,6 +236,7 @@ const MobileNav = ({ onOpen, authedUser, ...rest }: MobileProps) => (
 
 export default function DashboardLayout({ children, authedUser }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>
@@ -218,7 +254,12 @@ export default function DashboardLayout({ children, authedUser }) {
           <SidebarContent onClose={onClose} />
         </DrawerContent>
       </Drawer>
-      <MobileNav onOpen={onOpen} authedUser={authedUser} />
+      <MobileNav
+        onOpen={onOpen}
+        authedUser={authedUser}
+        toggleColorMode={toggleColorMode}
+        colorMode={colorMode}
+      />
       <Box ml={{ base: 0, md: 60 }} p="4">
         {children}
       </Box>
