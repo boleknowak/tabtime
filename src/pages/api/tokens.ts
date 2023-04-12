@@ -19,6 +19,9 @@ export default async function handle(request: NextApiRequest, response: NextApiR
     where: {
       userId: user.id,
     },
+    orderBy: {
+      createdAt: 'asc',
+    },
   });
 
   if (request.method === 'POST') {
@@ -48,7 +51,7 @@ export default async function handle(request: NextApiRequest, response: NextApiR
       });
     }
 
-    if (action === 'regenerate') {
+    if (action === 'refresh') {
       const { token } = request.body;
 
       const tokenExists = tokens.find((t) => t.token === token.token);

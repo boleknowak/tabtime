@@ -212,8 +212,8 @@ const MobileNav = ({ onOpen, authedUser, toggleColorMode, colorMode, ...rest }: 
 );
 
 export default function DashboardLayout({ children, authedUser }) {
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.900')}>

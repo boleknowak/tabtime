@@ -2,18 +2,11 @@ import { getServerSession } from 'next-auth/next';
 import { useEffect, useRef, useState } from 'react';
 import { IoMdRefresh } from 'react-icons/io';
 import { AiOutlineInfoCircle } from 'react-icons/ai';
-import { FaTrash } from 'react-icons/fa';
-import { HiRefresh } from 'react-icons/hi';
 import DashboardLayout from '@/components/Layouts/DashboardLayout';
 import SeoTags from '@/components/SeoTags';
 import { UserInterface } from '@/interfaces/UserInterface';
 import { authOptions } from '@/pages/api/auth/[...nextauth]';
 import {
-  Accordion,
-  AccordionButton,
-  AccordionIcon,
-  AccordionItem,
-  AccordionPanel,
   AlertDialog,
   AlertDialogBody,
   AlertDialogContent,
@@ -24,33 +17,26 @@ import {
   Button,
   Divider,
   Flex,
-  FormControl,
-  FormHelperText,
-  FormLabel,
   Grid,
   GridItem,
   Heading,
   HStack,
   IconButton,
-  Input,
   ListItem,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
   OrderedList,
   Spinner,
   Text,
   Tooltip,
   useDisclosure,
-  useToast,
   useColorModeValue,
 } from '@chakra-ui/react';
 import Image from 'next/image';
 import { TokenBox } from '@/components/Elements/TokenBox';
+import { TokenInterface } from '@/interfaces/TokenInterface';
+import { CreateKeyModal } from '@/components/Keys/CreateKeyModal';
+import { ManageKeyModal } from '@/components/Keys/ManageKeyModal';
+import { DeleteKeyDialog } from '@/components/Keys/DeleteKeyDialog';
+import { RefreshKeyDialog } from '@/components/Keys/RefreshKeyDialog';
 
 type Props = {
   siteMeta: {
@@ -59,32 +45,36 @@ type Props = {
   authedUser: UserInterface;
 };
 
-type SelectedToken = {
-  id: string;
-  name: string;
-  token: string;
-  createdAt: string;
-};
-
 export default function DashboardTokens({ siteMeta, authedUser }: Props) {
   const [tokens, setTokens] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isCreatingToken, setIsCreatingToken] = useState(false);
-  const [isDeletingToken, setIsDeletingToken] = useState(false);
-  const [isRegeneratingToken, setIsRegeneratingToken] = useState(false);
-  const [selectedToken, setSelectedToken] = useState({} as SelectedToken);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const { isOpen: isOpenDelete, onOpen: onOpenDelete, onClose: onCloseDelete } = useDisclosure();
+  const [isDeletingToken] = useState(false);
+  const [isRefreshingToken] = useState(false);
+  const [selectedToken, setSelectedToken] = useState({} as TokenInterface);
   const {
-    isOpen: isOpenRegenerate,
-    onOpen: onOpenRegenerate,
-    onClose: onCloseRegenerate,
+    isOpen: isCreateKeyModalOpened,
+    onOpen: openCreateKeyModal,
+    onClose: closeCreateKeyModalEvent,
   } = useDisclosure();
-  const { isOpen: isOpenManage, onOpen: onOpenManage, onClose: onCloseManage } = useDisclosure();
+  const {
+    isOpen: isDeleteKeyDialogOpened,
+    onOpen: openDeleteKeyDialog,
+    onClose: closeDeleteKeyDialogEvent,
+  } = useDisclosure();
+  const {
+    isOpen: isRefreshKeyDialogOpened,
+    onOpen: openRefreshKeyDialog,
+    onClose: closeRefreshKeyDialogEvent,
+  } = useDisclosure();
+  const {
+    isOpen: isManageKeyModalOpened,
+    onOpen: openManageKeyModal,
+    onClose: closeManageKeyModalEvent,
+  } = useDisclosure();
   const { isOpen: isOpenInfo, onOpen: onOpenInfo, onClose: onCloseInfo } = useDisclosure();
-  const cancelRef = useRef();
+  const cancelDeleteRef = useRef();
+  const cancelRefreshRef = useRef();
   const cancelInfoRef = useRef();
-  const toast = useToast();
 
   const getTokens = async () => {
     setIsLoading(true);
@@ -101,149 +91,14 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
     setTokens(data.tokens);
   };
 
-  const createToken = async (event) => {
-    event.preventDefault();
-    setIsCreatingToken(true);
-
-    const tokenName = event.target.tokenName.value;
-
-    const response = await fetch('/api/tokens', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: tokenName,
-        action: 'create',
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      onClose();
-      getTokens();
-      setIsCreatingToken(false);
-      toast({
-        title: data.message,
-        status: 'success',
-        duration: 3500,
-        position: 'top',
-        isClosable: true,
-      });
-    } else {
-      setIsCreatingToken(false);
-      toast({
-        title: data.message,
-        status: 'error',
-        duration: 3500,
-        position: 'top',
-        isClosable: true,
-      });
-    }
-  };
-
-  const regenerateToken = async (token: SelectedToken) => {
-    setIsRegeneratingToken(true);
-
-    const response = await fetch('/api/tokens', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        token,
-        action: 'regenerate',
-      }),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      onCloseRegenerate();
-      onCloseManage();
-      getTokens();
-      setIsRegeneratingToken(false);
-      toast({
-        title: data.message,
-        status: 'success',
-        duration: 3500,
-        position: 'top',
-        isClosable: true,
-      });
-    } else {
-      setIsRegeneratingToken(false);
-      toast({
-        title: data.message,
-        status: 'error',
-        duration: 3500,
-        position: 'top',
-        isClosable: true,
-      });
-    }
-  };
-
-  const regenerateTokenModal = (token: SelectedToken) => {
-    onOpenRegenerate();
+  const refreshTokenDialog = (token: TokenInterface) => {
+    openRefreshKeyDialog();
     setSelectedToken(token);
   };
 
-  const deleteTokenModal = (token: SelectedToken) => {
-    onOpenDelete();
+  const manageTokenModal = (token: TokenInterface) => {
+    openManageKeyModal();
     setSelectedToken(token);
-  };
-
-  const manageTokenModal = (token: SelectedToken) => {
-    onOpenManage();
-    setSelectedToken(token);
-  };
-
-  const deleteToken = async (token: SelectedToken) => {
-    setIsDeletingToken(true);
-    try {
-      const response = await fetch('/api/tokens', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        onCloseDelete();
-        onCloseManage();
-        getTokens();
-        setIsDeletingToken(false);
-        toast({
-          title: data.message,
-          status: 'info',
-          duration: 3500,
-          position: 'top',
-          isClosable: true,
-        });
-      } else {
-        setIsDeletingToken(false);
-        toast({
-          title: data.message,
-          status: 'error',
-          duration: 3500,
-          position: 'top',
-          isClosable: true,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: 'Something went wrong!',
-        status: 'error',
-        duration: 3500,
-        position: 'top',
-        isClosable: true,
-      });
-    }
   };
 
   useEffect(() => {
@@ -265,7 +120,7 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
                 for time tracking.
               </Text>
             </Box>
-            <Box>
+            <Box ml={4}>
               <HStack spacing={2}>
                 <IconButton aria-label="Info" icon={<AiOutlineInfoCircle />} onClick={onOpenInfo} />
                 <IconButton
@@ -284,7 +139,7 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
                   <Button
                     colorScheme="blue"
                     isDisabled={authedUser.maxTokens <= tokens.length}
-                    onClick={onOpen}
+                    onClick={openCreateKeyModal}
                   >
                     Create key
                   </Button>
@@ -308,7 +163,7 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
                     <Text color={useColorModeValue('gray.800', 'gray.200')} fontSize="lg">
                       You have <span className="font-bold">{tokens.length}</span> access keys.
                     </Text>
-                    <Button mt={6} colorScheme="blue" onClick={onOpen}>
+                    <Button mt={6} colorScheme="blue" onClick={openCreateKeyModal}>
                       Create first key
                     </Button>
                   </Box>
@@ -323,170 +178,38 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
                   ))}
                 </Grid>
               )}
-              <Modal isOpen={isOpen} onClose={onClose}>
-                <ModalOverlay />
-                <ModalContent>
-                  <form onSubmit={createToken}>
-                    <ModalHeader>Generate a new access key</ModalHeader>
-                    <ModalCloseButton />
-                    <ModalBody>
-                      <FormControl>
-                        <FormLabel>Name your key</FormLabel>
-                        <Input
-                          id="tokenName"
-                          name="tokenName"
-                          placeholder="e.g. My personal computer"
-                          type="text"
-                        />
-                        <FormHelperText fontSize="xs" fontStyle="italic">
-                          This is optional.
-                        </FormHelperText>
-                      </FormControl>
-                    </ModalBody>
-                    <Divider mt={4} />
-                    <ModalFooter>
-                      <HStack spacing={4}>
-                        <Text color={useColorModeValue('gray.500', 'gray.400')} fontSize="sm">
-                          You have {tokens.length} / {authedUser.maxTokens} access keys.
-                        </Text>
-                        <Button colorScheme="blue" isLoading={isCreatingToken} type="submit">
-                          Create
-                        </Button>
-                      </HStack>
-                    </ModalFooter>
-                  </form>
-                </ModalContent>
-              </Modal>
-              <Modal isOpen={isOpenManage} onClose={onCloseManage} size="lg">
-                <ModalOverlay />
-                <ModalContent>
-                  <ModalHeader>Manage key "{selectedToken.name || 'Untitled'}"</ModalHeader>
-                  <ModalCloseButton />
-                  <ModalBody>
-                    <Accordion allowToggle>
-                      <AccordionItem>
-                        <h2>
-                          <AccordionButton>
-                            <Box as="div" flex="1" textAlign="left">
-                              <HStack spacing={2}>
-                                <AiOutlineInfoCircle />
-                                <div>Regenerating your key</div>
-                              </HStack>
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                        </h2>
-                        <AccordionPanel pb={4}>
-                          To ensure the security of your access key and prevent any potential leaks,
-                          you have the option to regenerate it. Regenerating the key will also
-                          invalidate the old one, but it won't impact the time you've already
-                          tracked. After you regenerate the key, you will need to update it in your
-                          browser extension.
-                        </AccordionPanel>
-                      </AccordionItem>
-                      <AccordionItem>
-                        <h2>
-                          <AccordionButton>
-                            <Box as="div" flex="1" textAlign="left">
-                              <HStack spacing={2}>
-                                <AiOutlineInfoCircle />
-                                <div>Deleting your key</div>
-                              </HStack>
-                            </Box>
-                            <AccordionIcon />
-                          </AccordionButton>
-                        </h2>
-                        <AccordionPanel pb={4}>
-                          If you wish to permanently remove the access key, you have the option to
-                          delete it. However, please note that this action will also remove all the
-                          tracked time associated with that key.
-                        </AccordionPanel>
-                      </AccordionItem>
-                    </Accordion>
-                  </ModalBody>
-                  <ModalFooter>
-                    <HStack spacing={2}>
-                      <Button
-                        colorScheme="red"
-                        isLoading={isDeletingToken}
-                        leftIcon={<FaTrash />}
-                        loadingText="Delete key"
-                        onClick={() => deleteTokenModal(selectedToken)}
-                      >
-                        Delete key
-                      </Button>
-                      <Button
-                        colorScheme="blue"
-                        isLoading={isRegeneratingToken}
-                        leftIcon={<HiRefresh />}
-                        loadingText="Regenerate key"
-                        onClick={() => regenerateTokenModal(selectedToken)}
-                      >
-                        Regenerate key
-                      </Button>
-                    </HStack>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-              <AlertDialog
-                isOpen={isOpenDelete}
-                leastDestructiveRef={cancelRef}
-                onClose={onCloseDelete}
-              >
-                <AlertDialogOverlay>
-                  <AlertDialogContent>
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                      Delete key "{selectedToken.name || 'Untitled'}"
-                    </AlertDialogHeader>
-                    <AlertDialogBody>
-                      Are you sure? You can't undo this action afterwards.
-                    </AlertDialogBody>
-                    <AlertDialogFooter>
-                      <Button ref={cancelRef} onClick={onCloseDelete}>
-                        Cancel
-                      </Button>
-                      <Button
-                        ml={3}
-                        colorScheme="red"
-                        isLoading={isDeletingToken}
-                        onClick={() => deleteToken(selectedToken)}
-                      >
-                        Yes, delete
-                      </Button>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialogOverlay>
-              </AlertDialog>
-              <AlertDialog
-                isOpen={isOpenRegenerate}
-                leastDestructiveRef={cancelRef}
-                onClose={onCloseRegenerate}
-              >
-                <AlertDialogOverlay>
-                  <AlertDialogContent>
-                    <AlertDialogHeader fontSize="lg" fontWeight="bold">
-                      Regenerate key "{selectedToken.name || 'Untitled'}"
-                    </AlertDialogHeader>
-                    <AlertDialogBody>
-                      Are you sure? You can't undo this action afterwards. You will need to update
-                      the key in your browser extension.
-                    </AlertDialogBody>
-                    <AlertDialogFooter>
-                      <Button ref={cancelRef} onClick={onCloseRegenerate}>
-                        Cancel
-                      </Button>
-                      <Button
-                        ml={3}
-                        colorScheme="blue"
-                        isLoading={isRegeneratingToken}
-                        onClick={() => regenerateToken(selectedToken)}
-                      >
-                        Yes, regenerate
-                      </Button>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialogOverlay>
-              </AlertDialog>
+              <CreateKeyModal
+                isOpen={isCreateKeyModalOpened}
+                onClose={closeCreateKeyModalEvent}
+                tokens={tokens}
+                authedUser={authedUser}
+                getTokens={getTokens}
+              />
+              <ManageKeyModal
+                isOpen={isManageKeyModalOpened}
+                onClose={closeManageKeyModalEvent}
+                token={selectedToken}
+                deleteKeyDialog={openDeleteKeyDialog}
+                isDeletingKey={isDeletingToken}
+                refreshTokenDialog={refreshTokenDialog}
+                isRefreshingToken={isRefreshingToken}
+              />
+              <DeleteKeyDialog
+                isOpen={isDeleteKeyDialogOpened}
+                onClose={closeDeleteKeyDialogEvent}
+                cancelRef={cancelDeleteRef}
+                token={selectedToken}
+                getTokens={getTokens}
+                closeManageKeyModal={closeManageKeyModalEvent}
+              />
+              <RefreshKeyDialog
+                isOpen={isRefreshKeyDialogOpened}
+                onClose={closeRefreshKeyDialogEvent}
+                cancelRef={cancelRefreshRef}
+                token={selectedToken}
+                getTokens={getTokens}
+                closeManageKeyModal={closeManageKeyModalEvent}
+              />
               <AlertDialog
                 isOpen={isOpenInfo}
                 leastDestructiveRef={cancelInfoRef}
