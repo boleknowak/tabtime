@@ -18,7 +18,7 @@ export default function DashboardIndex({ siteMeta, authedUser }: Props) {
       <SeoTags title={siteMeta.title} />
       <DashboardLayout authedUser={authedUser}>
         <Heading as="h1" mb={4} size="lg">
-          Hello friend!
+          Hello friend! 🌱
         </Heading>
       </DashboardLayout>
     </>
@@ -40,7 +40,7 @@ export async function getServerSideProps(context) {
   return {
     props: {
       siteMeta: {
-        title: 'Dashboard - TabTime',
+        title: 'Account - TabTime',
       },
       authedUser: session.user as UserInterface,
     },

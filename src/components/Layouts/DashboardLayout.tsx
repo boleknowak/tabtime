@@ -1,18 +1,7 @@
 import { IconType } from 'react-icons';
-import {
-  FiBell,
-  FiChevronDown,
-  FiChevronUp,
-  FiCompass,
-  FiHome,
-  FiMenu,
-  FiMoon,
-  FiSettings,
-  FiStar,
-  FiSun,
-  FiTrendingUp,
-} from 'react-icons/fi';
-
+import { FiBell, FiChevronDown, FiChevronUp, FiMenu, FiMoon, FiSun } from 'react-icons/fi';
+import { RiKey2Line } from 'react-icons/ri';
+import { BiHomeSmile } from 'react-icons/bi';
 import { UserInterface } from '@/interfaces/UserInterface';
 import {
   Avatar,
@@ -39,6 +28,7 @@ import {
   VStack,
 } from '@chakra-ui/react';
 import { signOut } from 'next-auth/react';
+import NextLink from 'next/link';
 
 interface LinkItemProps {
   name: string;
@@ -46,11 +36,8 @@ interface LinkItemProps {
   icon: IconType;
 }
 const LinkItems: Array<LinkItemProps> = [
-  { name: 'Home', href: '', icon: FiHome },
-  { name: 'Trending', href: '', icon: FiTrendingUp },
-  { name: 'Explore', href: '', icon: FiCompass },
-  { name: 'Favourites', href: '', icon: FiStar },
-  { name: 'Settings', href: '', icon: FiSettings },
+  { name: 'Home', href: '/dashboard', icon: BiHomeSmile },
+  { name: 'Access keys', href: '/dashboard/keys', icon: RiKey2Line },
 ];
 
 interface NavItemProps extends FlexProps {
@@ -59,14 +46,16 @@ interface NavItemProps extends FlexProps {
   children: string;
 }
 const NavItem = ({ icon, href, children, ...rest }: NavItemProps) => (
-  <Link _focus={{ boxShadow: 'none' }} href={href} style={{ textDecoration: 'none' }}>
+  <Link as={NextLink} _focus={{ boxShadow: 'none' }} href={href} style={{ textDecoration: 'none' }}>
     <Flex
       align="center"
-      mx="4"
-      p="4"
+      mx={4}
+      my={2}
+      px={4}
+      py={2}
       borderRadius="lg"
       _hover={{
-        bg: 'cyan.400',
+        bg: 'blue.400',
         color: 'white',
       }}
       cursor="pointer"
@@ -77,7 +66,7 @@ const NavItem = ({ icon, href, children, ...rest }: NavItemProps) => (
         <Icon
           as={icon}
           mr="4"
-          fontSize="16"
+          fontSize="20"
           _groupHover={{
             color: 'white',
           }}
@@ -105,7 +94,7 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => (
   >
     <Flex align="center" justify="space-between" h="20" mx="8">
       <Text fontFamily="monospace" fontSize="2xl" fontWeight="bold">
-        Logo
+        TabTime
       </Text>
       <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
     </Flex>
@@ -149,7 +138,7 @@ const MobileNav = ({ onOpen, authedUser, toggleColorMode, colorMode, ...rest }: 
       fontSize="2xl"
       fontWeight="bold"
     >
-      Logo
+      TabTime
     </Text>
 
     <HStack spacing={{ base: '0', md: '2' }}>
@@ -196,25 +185,13 @@ const MobileNav = ({ onOpen, authedUser, toggleColorMode, colorMode, ...rest }: 
                 borderColor={useColorModeValue('gray.200', 'gray.700')}
               >
                 <MenuItem
+                  as={NextLink}
                   bg={useColorModeValue('white', 'gray.900')}
                   _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
+                  href="/dashboard/account"
                   rounded="md"
                 >
-                  Profile
-                </MenuItem>
-                <MenuItem
-                  bg={useColorModeValue('white', 'gray.900')}
-                  _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
-                  rounded="md"
-                >
-                  Settings
-                </MenuItem>
-                <MenuItem
-                  bg={useColorModeValue('white', 'gray.900')}
-                  _hover={{ bg: useColorModeValue('gray.200', 'gray.700') }}
-                  rounded="md"
-                >
-                  Billing
+                  Account
                 </MenuItem>
                 <MenuDivider />
                 <MenuItem
