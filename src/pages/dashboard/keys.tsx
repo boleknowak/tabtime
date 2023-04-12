@@ -74,7 +74,7 @@ export default function DashboardTokens({ siteMeta, authedUser }: Props) {
 
   const getTokens = async () => {
     setIsLoading(true);
-    const response = await fetch('/api/tokens', {
+    const response = await fetch('/api/keys', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

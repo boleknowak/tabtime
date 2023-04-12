@@ -34,7 +34,7 @@ export const DeleteKeyDialog = ({
   const deleteToken = async () => {
     setIsDeletingToken(true);
     try {
-      const response = await fetch('/api/tokens', {
+      const response = await fetch('/api/keys', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

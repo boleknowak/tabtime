@@ -34,7 +34,7 @@ export const RefreshKeyDialog = ({
   const refreshToken = async () => {
     setIsRefreshingToken(true);
 
-    const response = await fetch('/api/tokens', {
+    const response = await fetch('/api/keys', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

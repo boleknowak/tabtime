@@ -45,7 +45,7 @@ export const CreateKeyModal = ({
 
     const tokenName = event.target.tokenName.value;
 
-    const response = await fetch('/api/tokens', {
+    const response = await fetch('/api/keys', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
