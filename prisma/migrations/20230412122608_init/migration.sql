@@ -1,4 +1,21 @@
 -- CreateTable
+CREATE TABLE "visits" (
+    "id" TEXT NOT NULL,
+    "token_id" TEXT NOT NULL,
+    "origin" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+    "os" TEXT NOT NULL DEFAULT 'unknown',
+    "browser" TEXT NOT NULL DEFAULT 'unknown',
+    "seconds" INTEGER NOT NULL DEFAULT 0,
+    "started_at" TIMESTAMP(3) NOT NULL,
+    "ended_at" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "visits_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "tokens" (
     "id" TEXT NOT NULL,
     "user_id" TEXT NOT NULL,
@@ -80,6 +97,9 @@ CREATE UNIQUE INDEX "verification_tokens_token_key" ON "verification_tokens"("to
 
 -- CreateIndex
 CREATE UNIQUE INDEX "verification_tokens_identifier_token_key" ON "verification_tokens"("identifier", "token");
+
+-- AddForeignKey
+ALTER TABLE "visits" ADD CONSTRAINT "visits_token_id_fkey" FOREIGN KEY ("token_id") REFERENCES "tokens"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "tokens" ADD CONSTRAINT "tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

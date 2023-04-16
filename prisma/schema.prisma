@@ -7,6 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Visit {
+  id        String   @id @default(cuid())
+  tokenId   String   @map("token_id")
+  origin    String
+  path      String
+  os        String   @default("unknown")
+  browser   String   @default("unknown")
+  seconds   Int      @default(0)
+  startedAt DateTime @map("started_at")
+  endedAt   DateTime? @map("ended_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  token Token @relation(fields: [tokenId], references: [id], onDelete: Cascade)
+
+  @@map("visits")
+}
+
 model Token {
   id        String   @id @default(cuid())
   userId    String   @map("user_id")
@@ -15,7 +33,8 @@ model Token {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  visits Visit[]
 
   @@map("tokens")
 }
