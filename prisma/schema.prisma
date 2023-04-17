@@ -8,21 +8,22 @@ datasource db {
 }
 
 model Visit {
-  id        String   @id @default(cuid())
-  tokenId   String   @map("token_id")
-  origin    String
-  path      String
-  os        String   @default("unknown")
-  browser   String   @default("unknown")
-  seconds   Int      @default(0)
-  startedAt DateTime @map("started_at")
-  endedAt   DateTime? @map("ended_at")
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  id         String    @id @default(cuid())
+  tokenId    String    @map("token_id")
+  origin     String
+  path       String
+  os         String    @default("unknown")
+  browser    String    @default("unknown")
+  seconds    Int       @default(0)
+  startedAt  DateTime  @map("started_at")
+  endedAt    DateTime? @map("ended_at")
+  lastPingAt DateTime? @map("last_ping_at")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
 
   token Token @relation(fields: [tokenId], references: [id], onDelete: Cascade)
 
-  @@index([id, tokenId, createdAt, origin])
+  @@index([id, tokenId, createdAt, lastPingAt, endedAt, origin])
   @@map("visits")
 }
 
