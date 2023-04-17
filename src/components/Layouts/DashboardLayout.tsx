@@ -1,7 +1,7 @@
 import { IconType } from 'react-icons';
 import { FiBell, FiChevronDown, FiChevronUp, FiMenu, FiMoon, FiSun } from 'react-icons/fi';
 import { RiKey2Line } from 'react-icons/ri';
-import { BiHomeSmile } from 'react-icons/bi';
+import { BiHomeSmile, BiBarChartAlt2 } from 'react-icons/bi';
 import { UserInterface } from '@/interfaces/UserInterface';
 import {
   Avatar,
@@ -29,6 +29,7 @@ import {
 } from '@chakra-ui/react';
 import { signOut } from 'next-auth/react';
 import NextLink from 'next/link';
+import { Pacifico } from 'next/font/google';
 
 interface LinkItemProps {
   name: string;
@@ -38,6 +39,7 @@ interface LinkItemProps {
 const LinkItems: Array<LinkItemProps> = [
   { name: 'Home', href: '/dashboard', icon: BiHomeSmile },
   { name: 'Access keys', href: '/dashboard/keys', icon: RiKey2Line },
+  { name: 'Statistics', href: '/dashboard/stats', icon: BiBarChartAlt2 },
 ];
 
 interface NavItemProps extends FlexProps {
@@ -81,6 +83,8 @@ interface SidebarProps extends BoxProps {
   onClose: () => void;
 }
 
+const pacificoFont = Pacifico({ subsets: ['latin'], weight: '400' });
+
 const SidebarContent = ({ onClose, ...rest }: SidebarProps) => (
   <Box
     pos="fixed"
@@ -93,9 +97,11 @@ const SidebarContent = ({ onClose, ...rest }: SidebarProps) => (
     {...rest}
   >
     <Flex align="center" justify="space-between" h="20" mx="8">
-      <Text fontFamily="monospace" fontSize="2xl" fontWeight="bold">
-        TabTime
-      </Text>
+      <Link as={NextLink} href="/dashboard" style={{ textDecoration: 'none' }}>
+        <Text fontSize="2xl" fontWeight="bold">
+          <span className={pacificoFont.className}>TabTime</span>
+        </Text>
+      </Link>
       <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
     </Flex>
     {LinkItems.map((link) => (

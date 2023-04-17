@@ -22,6 +22,7 @@ model Visit {
 
   token Token @relation(fields: [tokenId], references: [id], onDelete: Cascade)
 
+  @@index([id, tokenId, createdAt, origin])
   @@map("visits")
 }
 
@@ -36,6 +37,7 @@ model Token {
   user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   visits Visit[]
 
+  @@index([userId, token])
   @@map("tokens")
 }
 
