@@ -7,6 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Site {
+  id         String   @id @default(cuid())
+  hostname   String
+  faviconUrl String?  @map("favicon_url")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@index([hostname, id])
+  @@map("sites")
+}
+
 model Visit {
   id         String    @id @default(cuid())
   tokenId    String    @map("token_id")
